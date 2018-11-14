@@ -1,22 +1,25 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { LocalStorageAccessTokenName, LocalStorageTokenExpirationName } from 'src/app/constants/local-storage.constants';
 
 @Injectable()
-export class GoogleSigninService {
-
-    private readonly LocalStorageAccessTokenName = 'access_token';
-    private readonly LocalStorageTokenExpirationName = 'token_expiration';
+export class GoogleCredentialsService {
 
     private _accessToken: string;
 
     private _tokenExpiration: number;
 
-    public readonly accessTokenObservable: BehaviorSubject<string> = new BehaviorSubject<string>(null);
+    public readonly accessTokenObservable: BehaviorSubject<string>;
+
+    constructor() {
+        const accessToken = this.accessToken;
+        this.accessTokenObservable = new BehaviorSubject<string>(accessToken);
+    }
 
     get accessToken(): string {
         let changed = false;
         if (!this._accessToken) {
-            const accessToken = localStorage.getItem(this.LocalStorageAccessTokenName);
+            const accessToken = localStorage.getItem(LocalStorageAccessTokenName);
             if (accessToken) {
                 this._accessToken = accessToken;
                 changed = true;
@@ -24,11 +27,11 @@ export class GoogleSigninService {
         }
         if (this.isTokenExpired()) {
             this._accessToken = null;
-            localStorage.removeItem(this.LocalStorageAccessTokenName);
-            localStorage.removeItem(this.LocalStorageTokenExpirationName);
+            localStorage.removeItem(LocalStorageAccessTokenName);
+            localStorage.removeItem(LocalStorageTokenExpirationName);
             changed = true;
         }
-        if (changed) {
+        if (changed && this.accessTokenObservable) {
             this.accessTokenObservable.next(this._accessToken);
         }
         return this._accessToken;
@@ -36,18 +39,18 @@ export class GoogleSigninService {
 
     set accessToken(value: string) {
         if (this._accessToken != value) {
-            localStorage.setItem(this.LocalStorageAccessTokenName, this._accessToken = value);
+            localStorage.setItem(LocalStorageAccessTokenName, this._accessToken = value);
             this.accessTokenObservable.next(value);
         }
     }
 
     setTokenExpiration(expiration: number) {
-        localStorage.setItem(this.LocalStorageTokenExpirationName, String(this._tokenExpiration = expiration));
+        localStorage.setItem(LocalStorageTokenExpirationName, String(this._tokenExpiration = expiration));
     }
 
     isTokenExpired(): boolean {
         if (this._tokenExpiration == undefined) {
-            const tokenExpiration = localStorage.getItem(this.LocalStorageTokenExpirationName);
+            const tokenExpiration = localStorage.getItem(LocalStorageTokenExpirationName);
             this._tokenExpiration = tokenExpiration ? parseInt(tokenExpiration) : 0;
         }
         return new Date().getTime() > this._tokenExpiration;

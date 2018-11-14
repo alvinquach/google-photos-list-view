@@ -1,5 +1,5 @@
 import { AfterViewInit, Component } from '@angular/core';
-import { GoogleSigninService } from 'src/app/services/google-signin/google-signin.service';
+import { GoogleCredentialsService } from 'src/app/services/google-credentials/google-credentials.service';
 
 // declare var gapi: any;
 
@@ -9,7 +9,7 @@ import { GoogleSigninService } from 'src/app/services/google-signin/google-signi
 })
 export class GoogleSigninComponent implements AfterViewInit {
 
-    constructor(private _googleSigninService: GoogleSigninService) {
+    constructor(private _googleCredentialsService: GoogleCredentialsService) {
 
     }
 
@@ -27,8 +27,8 @@ export class GoogleSigninComponent implements AfterViewInit {
     private _onSignin(googleUser: gapi.auth2.GoogleUser) {
         const authResponse: gapi.auth2.AuthResponse = googleUser.getAuthResponse();
         if (authResponse.access_token) {
-            this._googleSigninService.accessToken = authResponse.access_token;
-            this._googleSigninService.setTokenExpiration(authResponse.expires_at);
+            this._googleCredentialsService.accessToken = authResponse.access_token;
+            this._googleCredentialsService.setTokenExpiration(authResponse.expires_at);
         }
         console.log(authResponse);
         console.log(googleUser.getBasicProfile()); // TODO parse and store user profile

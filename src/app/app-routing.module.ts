@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { GoogleSigninComponent } from './components/google-signin/google-signin.component';
+import { RouterModule, Routes } from '@angular/router';
+import { MediaItemsComponent } from './components/media-items/media-items.component';
 
 const AppRoutes: Routes = [
     {
         path: '',
-        redirectTo: 'test',
+        redirectTo: 'home',
         pathMatch: 'full'
     },
     {
-        path: 'test',
-        component: GoogleSigninComponent
+        path: 'home',
+        component: MediaItemsComponent
     },
 ];
 
