@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { GooglePhotosBaseUrl } from 'src/app/constants/api-enpoint.constants';
 
-const MaxPageSize = 100;
 
 @Injectable()
 export class GooglePhotosMediaItemsService {
+
+    private readonly MaxPageSize = 100;
 
     constructor(private _httpClient: HttpClient) {
 
@@ -46,7 +47,7 @@ export class GooglePhotosMediaItemsService {
                     }
                 },
                 {
-                    pageSize: 100,
+                    pageSize: this.MaxPageSize,
                     pageToken: nextPageToken
                 },
                 error
@@ -60,7 +61,7 @@ export class GooglePhotosMediaItemsService {
         const mediaItems = [];
         search = {
             ...search,
-            pageSize: 100
+            pageSize: this.MaxPageSize
         };
         console.log(search)
         const searchRecursively = (nextPageToken?) => {
