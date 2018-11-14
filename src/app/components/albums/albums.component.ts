@@ -14,7 +14,7 @@ export class AlbumsComponent implements OnInit, OnDestroy {
 
     private _accessTokenSubscription: Subscription;
 
-    private _loading: boolean;
+    private _currentRequestId: number;
 
     private _albums: Albums;
 
@@ -25,7 +25,7 @@ export class AlbumsComponent implements OnInit, OnDestroy {
     }
 
     get loading(): boolean {
-        return this._loading;
+        return this._currentRequestId != null;
     }
 
     get albums(): Albums {
@@ -42,6 +42,7 @@ export class AlbumsComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        this.loading && this._albumsService.cancelRequest(this._currentRequestId);
         this. _accessTokenSubscription && this. _accessTokenSubscription.unsubscribe();
     }
 
@@ -50,8 +51,10 @@ export class AlbumsComponent implements OnInit, OnDestroy {
     }
 
     private _loadItems() {
-        this._loading = true;
-        this._albumsService.listAll(
+        if (this.loading) {
+            this._albumsService.cancelRequest(this._currentRequestId);
+        }
+        this._currentRequestId = this._albumsService.listAll(
             this._onItemsLoaded.bind(this),
             this._onItemsLoadError.bind(this)
         );
@@ -60,12 +63,12 @@ export class AlbumsComponent implements OnInit, OnDestroy {
     private _onItemsLoaded(res: { albums: Albums }): void {
         console.log(res);
         this._albums = res.albums;
-        this._loading = false;
+        this._currentRequestId = null;
     }
 
     private _onItemsLoadError(error) {
         console.log(error);
-        this._loading = false;
+        this._currentRequestId = null;
     }
 
 }

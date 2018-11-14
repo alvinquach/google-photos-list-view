@@ -10,8 +10,14 @@ export class GooglePhotosAlbumsService {
 
     private readonly BaseUrl = `${GooglePhotosBaseUrl}/v1/albums`;
 
+    private readonly _requestStatus: boolean[] = [];
+
     constructor(private _httpClient: HttpClient) {
 
+    }
+
+    cancelRequest(requestId: number): void {
+        this._requestStatus[requestId] = false;
     }
 
     addEnrichment(callback: (res) => void, albumId: string, error?: (err) => void): void {
@@ -38,18 +44,25 @@ export class GooglePhotosAlbumsService {
         // TODO Implement this
     }
 
-    listAll(callback: (res) => void, error?: (err) => void): void {
+    listAll(callback: (res) => void, error?: (err) => void): number {
+        const requestId = this._requestStatus.length;
+        this._requestStatus.push(true);
+
         const albums: Albums = [];
 
         const listRecursively = (nextPageToken?) => {
             this.list(
                 (res) => {
                     albums.push(...res.albums);
+                    if (!this._requestStatus[requestId]) {
+                        return;
+                    }
                     if (res.nextPageToken) {
                         listRecursively(res.nextPageToken);
                     }
                     else {
                         callback({ albums: albums });
+                        this._requestStatus[requestId] = false;
                     }
                 },
                 {
@@ -61,6 +74,7 @@ export class GooglePhotosAlbumsService {
         };
 
         listRecursively();
+        return requestId;
     }
 
 }

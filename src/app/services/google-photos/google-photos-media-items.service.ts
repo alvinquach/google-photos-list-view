@@ -11,8 +11,14 @@ export class GooglePhotosMediaItemsService {
 
     private readonly BaseUrl = `${GooglePhotosBaseUrl}/v1/mediaItems`;
 
+    private readonly _requestStatus: boolean[] = [];
+
     constructor(private _httpClient: HttpClient) {
 
+    }
+
+    cancelRequest(requestId: number): void {
+        this._requestStatus[requestId] = false;
     }
 
     batchCreate(callback: (res) => void, batchCreate, error?: (err) => void): void {
@@ -35,18 +41,25 @@ export class GooglePhotosMediaItemsService {
         this._httpClient.post(`${this.BaseUrl}:search`, search).subscribe(callback, error);
     }
 
-    listAll(callback: (res) => void, error?: (err) => void): void {
+    listAll(callback: (res) => void, error?: (err) => void): number {
+        const requestId = this._requestStatus.length;
+        this._requestStatus.push(true);
+
         const mediaItems: MediaItems = [];
 
         const listRecursively = (nextPageToken?) => {
             this.list(
                 (res) => {
                     mediaItems.push(...res.mediaItems);
+                    if (!this._requestStatus[requestId]) {
+                        return;
+                    }
                     if (res.nextPageToken) {
                         listRecursively(res.nextPageToken);
                     }
                     else {
                         callback({ mediaItems: mediaItems });
+                        this._requestStatus[requestId] = false;
                     }
                 },
                 {
@@ -58,10 +71,15 @@ export class GooglePhotosMediaItemsService {
         };
 
         listRecursively();
+        return requestId;
     }
 
-    searchAll(callback: (res) => void, search = {}, error?: (err) => void): void {
+    searchAll(callback: (res) => void, search = {}, error?: (err) => void): number {
+        const requestId = this._requestStatus.length;
+        this._requestStatus.push(true);
+
         const mediaItems = [];
+
         search = {
             ...search,
             pageSize: this.MaxPageSize
@@ -70,11 +88,15 @@ export class GooglePhotosMediaItemsService {
             this.search(
                 (res) => {
                     mediaItems.push(...res.mediaItems);
+                    if (!this._requestStatus[requestId]) {
+                        return;
+                    }
                     if (res.nextPageToken) {
                         searchRecursively(res.nextPageToken);
                     }
                     else {
                         callback({ mediaItems: mediaItems });
+                        this._requestStatus[requestId] = false;
                     }
                 },
                 {
@@ -86,6 +108,7 @@ export class GooglePhotosMediaItemsService {
         };
 
         searchRecursively();
+        return requestId;
     }
 
 }

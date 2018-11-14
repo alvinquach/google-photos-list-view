@@ -14,7 +14,7 @@ export class MediaItemsComponent implements OnInit, OnDestroy {
 
     private _accessTokenSubscription: Subscription;
 
-    private _loading: boolean;
+    private _currentRequestId: number;
 
     private _albumId: string;
 
@@ -27,7 +27,7 @@ export class MediaItemsComponent implements OnInit, OnDestroy {
     }
 
     get loading(): boolean {
-        return this._loading;
+        return this._currentRequestId != null;
     }
 
     get mediaItems(): MediaItems {
@@ -45,19 +45,22 @@ export class MediaItemsComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        this.loading && this._mediaItemsService.cancelRequest(this._currentRequestId);
         this. _accessTokenSubscription && this. _accessTokenSubscription.unsubscribe();
     }
 
     private _loadItems() {
-        this._loading = true;
+        if (this.loading) {
+            this._mediaItemsService.cancelRequest(this._currentRequestId);
+        }
         if (!this._albumId) {
-            this._mediaItemsService.listAll(
+            this._currentRequestId = this._mediaItemsService.listAll(
                 this._onItemsLoaded.bind(this),
                 this._onItemsLoadError.bind(this)
             );
         }
         else {
-            this._mediaItemsService.searchAll(
+            this._currentRequestId = this._mediaItemsService.searchAll(
                 this._onItemsLoaded.bind(this),
                 { albumId: this._albumId },
                 this._onItemsLoadError.bind(this));
@@ -67,12 +70,12 @@ export class MediaItemsComponent implements OnInit, OnDestroy {
     private _onItemsLoaded(res: { mediaItems: MediaItems }): void {
         this._mediaItems = res.mediaItems;
         // console.log(this._mediaItems.map(i => i.filename).join(',\n'));
-        this._loading = false;
+        this._currentRequestId = null;
     }
 
     private _onItemsLoadError(error) {
         console.log(error);
-        this._loading = false;
+        this._currentRequestId = null;
     }
 
 }
