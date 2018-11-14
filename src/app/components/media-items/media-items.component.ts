@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { GooglePhotosMediaItemsService } from 'src/app/services/google-photos/google-photos-media-items.service';
-import { GoogleCredentialsService } from 'src/app/services/google-credentials/google-credentials.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { MediaItem } from 'src/app/models/media-item.model';
+import { GoogleCredentialsService } from 'src/app/services/google-credentials/google-credentials.service';
+import { GooglePhotosMediaItemsService } from 'src/app/services/google-photos/google-photos-media-items.service';
 
 @Component({
     selector: 'app-media-items',
@@ -13,12 +14,28 @@ export class MediaItemsComponent implements OnInit, OnDestroy {
 
     private _accessTokenSubscription: Subscription;
 
-    constructor(private _credentialsService: GoogleCredentialsService,
+    private _loading: boolean;
+
+    private _albumId: string;
+
+    private _mediaItems: MediaItem[];
+
+    constructor(private _activatedRoute: ActivatedRoute,
+                private _credentialsService: GoogleCredentialsService,
                 private _mediaItemsService: GooglePhotosMediaItemsService) {
 
     }
 
+    get loading(): boolean {
+        return this._loading;
+    }
+
+    get mediaItems(): MediaItem[] {
+        return this._mediaItems;
+    }
+
     ngOnInit() {
+        this._albumId = this._activatedRoute.snapshot.params['albumId'];
         this. _accessTokenSubscription = this._credentialsService.accessTokenObservable.subscribe((value) => {
             if (!value) {
                 return;
@@ -31,14 +48,31 @@ export class MediaItemsComponent implements OnInit, OnDestroy {
         this. _accessTokenSubscription && this. _accessTokenSubscription.unsubscribe();
     }
 
-    private _loadItems(search = {}) {
-        // this._mediaItemsService.search((res) => {
-        //     console.log(this);
-        //     console.log(res);
-        // });
-        this._mediaItemsService.listAll((res) => {
-            console.log(res);
-        });
+    private _loadItems() {
+        this._loading = true;
+        if (!this._albumId) {
+            this._mediaItemsService.listAll(
+                this._onItemsLoaded.bind(this),
+                this._onItemsLoadError.bind(this)
+            );
+        }
+        else {
+            this._mediaItemsService.searchAll(
+                this._onItemsLoaded.bind(this),
+                { albumId: this._albumId },
+                this._onItemsLoadError.bind(this));
+        }
+    }
+
+    private _onItemsLoaded(res: { mediaItems: MediaItem[] }): void {
+        this._mediaItems = res.mediaItems;
+        console.log(this._mediaItems.map(i => i.filename).join(',\n'));
+        this._loading = false;
+    }
+
+    private _onItemsLoadError(error) {
+        console.log(error);
+        this._loading = false;
     }
 
 }

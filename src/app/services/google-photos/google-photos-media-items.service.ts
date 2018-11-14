@@ -19,11 +19,11 @@ export class GooglePhotosMediaItemsService {
         this._httpClient.get(`${GooglePhotosBaseUrl}/v1/mediaItems/${mediaItemId}`).subscribe(callback, error);
     }
 
-    list(callback: (res) => void, pageSize?: number, pageToken?: string, error?: (err) => void): void {
+    list(callback: (res) => void, params: MediaItemsListParams, error?: (err) => void): void {
         this._httpClient.get(
             `${GooglePhotosBaseUrl}/v1/mediaItems?` +
-            (pageSize ? `pageSize=${pageSize}` : '') +
-            (pageToken ? `&pageToken=${pageToken}` : '')
+            (params.pageSize ? `pageSize=${params.pageSize}` : '') +
+            (params.pageToken ? `&pageToken=${params.pageToken}` : '')
         ).subscribe(callback, error);
     }
 
@@ -33,22 +33,61 @@ export class GooglePhotosMediaItemsService {
 
     listAll(callback: (res) => void, error?: (err) => void): void {
         const mediaItems = [];
-        let i = 0;
+
         const listRecursively = (nextPageToken?) => {
-            i++;
-            this.list((res) => {
-                console.log("CALLED " + i)
-                mediaItems.push(...res.mediaItems);
-                if (res.nextPageToken) {
-                    listRecursively(res.nextPageToken);
-                }
-                else {
-                    callback({ mediaItems: mediaItems });
-                }
-            }, 100, nextPageToken);
+            this.list(
+                (res) => {
+                    mediaItems.push(...res.mediaItems);
+                    if (res.nextPageToken) {
+                        listRecursively(res.nextPageToken);
+                    }
+                    else {
+                        callback({ mediaItems: mediaItems });
+                    }
+                },
+                {
+                    pageSize: 100,
+                    pageToken: nextPageToken
+                },
+                error
+            );
         };
 
         listRecursively();
     }
 
+    searchAll(callback: (res) => void, search = {}, error?: (err) => void): void {
+        const mediaItems = [];
+        search = {
+            ...search,
+            pageSize: 100
+        };
+        console.log(search)
+        const searchRecursively = (nextPageToken?) => {
+            this.search(
+                (res) => {
+                    mediaItems.push(...res.mediaItems);
+                    if (res.nextPageToken) {
+                        searchRecursively(res.nextPageToken);
+                    }
+                    else {
+                        callback({ mediaItems: mediaItems });
+                    }
+                },
+                {
+                    ...search,
+                    pageToken: nextPageToken
+                },
+                error
+            );
+        };
+
+        searchRecursively();
+    }
+
+}
+
+export interface MediaItemsListParams {
+    pageSize?: number;
+    pageToken?: string;
 }

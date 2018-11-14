@@ -12,6 +12,10 @@ const AppRoutes: Routes = [
         path: 'home',
         component: MediaItemsComponent
     },
+    {
+        path: 'album/:albumId',
+        component: MediaItemsComponent
+    },
 ];
 
 @NgModule({
