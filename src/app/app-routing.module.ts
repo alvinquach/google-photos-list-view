@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MediaItemsComponent } from './components/media-items/media-items.component';
+import { AlbumsComponent } from './components/albums/albums.component';
 
 const AppRoutes: Routes = [
     {
@@ -10,7 +11,7 @@ const AppRoutes: Routes = [
     },
     {
         path: 'home',
-        component: MediaItemsComponent
+        component: AlbumsComponent
     },
     {
         path: 'album/:albumId',

@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { GooglePhotosBaseUrl } from 'src/app/constants/api-enpoint.constants';
+import { MediaItems } from 'src/app/models/media-item.model';
 
 
 @Injectable()
@@ -8,32 +9,34 @@ export class GooglePhotosMediaItemsService {
 
     private readonly MaxPageSize = 100;
 
+    private readonly BaseUrl = `${GooglePhotosBaseUrl}/v1/mediaItems`;
+
     constructor(private _httpClient: HttpClient) {
 
     }
 
-    batchCreate(callback, error, batchCreate): void {
+    batchCreate(callback: (res) => void, batchCreate, error?: (err) => void): void {
         // TODO Implement this
     }
 
     get(callback: (res) => void, mediaItemId: string, error?: (err) => void): void {
-        this._httpClient.get(`${GooglePhotosBaseUrl}/v1/mediaItems/${mediaItemId}`).subscribe(callback, error);
+        this._httpClient.get(this.BaseUrl).subscribe(callback, error);
     }
 
     list(callback: (res) => void, params: MediaItemsListParams, error?: (err) => void): void {
         this._httpClient.get(
-            `${GooglePhotosBaseUrl}/v1/mediaItems?` +
+            `${this.BaseUrl}?` +
             (params.pageSize ? `pageSize=${params.pageSize}` : '') +
             (params.pageToken ? `&pageToken=${params.pageToken}` : '')
         ).subscribe(callback, error);
     }
 
     search(callback: (res) => void, search = {}, error?: (err) => void): void {
-        this._httpClient.post(`${GooglePhotosBaseUrl}/v1/mediaItems:search`, search).subscribe(callback, error);
+        this._httpClient.post(`${this.BaseUrl}:search`, search).subscribe(callback, error);
     }
 
     listAll(callback: (res) => void, error?: (err) => void): void {
-        const mediaItems = [];
+        const mediaItems: MediaItems = [];
 
         const listRecursively = (nextPageToken?) => {
             this.list(
@@ -63,7 +66,6 @@ export class GooglePhotosMediaItemsService {
             ...search,
             pageSize: this.MaxPageSize
         };
-        console.log(search)
         const searchRecursively = (nextPageToken?) => {
             this.search(
                 (res) => {

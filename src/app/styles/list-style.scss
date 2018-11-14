@@ -21,6 +21,11 @@
               flex: 1;
               padding-left: 16px;
               max-width: #{$width};
+
+              a {
+                  color: rgb(32, 192, 255);
+                  cursor: pointer;
+              }
             }
         }
 

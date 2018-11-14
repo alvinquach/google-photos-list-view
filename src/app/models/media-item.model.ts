@@ -11,3 +11,5 @@ export interface MediaItem {
     contributorInfo?: ContributorInfo;
     filename?: string;
 }
+
+export declare type MediaItems = MediaItem[];
