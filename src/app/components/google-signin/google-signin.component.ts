@@ -30,8 +30,6 @@ export class GoogleSigninComponent implements AfterViewInit {
             this._googleCredentialsService.accessToken = authResponse.access_token;
             this._googleCredentialsService.setTokenExpiration(authResponse.expires_at);
         }
-        console.log(authResponse);
-        console.log(googleUser.getBasicProfile()); // TODO parse and store user profile
     }
 
 }

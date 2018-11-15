@@ -49,6 +49,10 @@ export class MediaItemsComponent implements OnInit, OnDestroy {
         this. _accessTokenSubscription && this. _accessTokenSubscription.unsubscribe();
     }
 
+    reloadItems() {
+        this._loadItems();
+    }
+
     private _loadItems() {
         if (this.loading) {
             this._mediaItemsService.cancelRequest(this._currentRequestId);
@@ -69,12 +73,11 @@ export class MediaItemsComponent implements OnInit, OnDestroy {
 
     private _onItemsLoaded(res: { mediaItems: MediaItems }): void {
         this._mediaItems = res.mediaItems;
-        // console.log(this._mediaItems.map(i => i.filename).join(',\n'));
         this._currentRequestId = null;
     }
 
     private _onItemsLoadError(error) {
-        console.log(error);
+        console.error(error);
         this._currentRequestId = null;
     }
 

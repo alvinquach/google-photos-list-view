@@ -37,7 +37,7 @@ export class AlbumsComponent implements OnInit, OnDestroy {
             if (!value) {
                 return;
             }
-            this._loadItems();
+            this._loadAlbums();
         });
     }
 
@@ -50,7 +50,11 @@ export class AlbumsComponent implements OnInit, OnDestroy {
         this._router.navigate(['album', album.id]);
     }
 
-    private _loadItems() {
+    reloadAlbums() {
+        this._loadAlbums();
+    }
+
+    private _loadAlbums() {
         if (this.loading) {
             this._albumsService.cancelRequest(this._currentRequestId);
         }
@@ -61,13 +65,12 @@ export class AlbumsComponent implements OnInit, OnDestroy {
     }
 
     private _onItemsLoaded(res: { albums: Albums }): void {
-        console.log(res);
         this._albums = res.albums;
         this._currentRequestId = null;
     }
 
     private _onItemsLoadError(error) {
-        console.log(error);
+        console.error(error);
         this._currentRequestId = null;
     }
 

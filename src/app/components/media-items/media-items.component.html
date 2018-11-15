@@ -1,20 +1,29 @@
+
 <div [ngSwitch]="loading">
     <div *ngSwitchCase="true">
         Loading...
     </div>
-    <div *ngSwitchCase="false" class="items-container">
-        <div *ngFor="let item of mediaItems; let i = index" class="item-row">
-            <div class="column-10">
-                {{i + 1}}
-            </div>
-            <div class="column-30">
-                {{item.filename}}
-            </div>
-            <div class="column-30">
-                {{item.mediaMetadata?.creationTime | date: 'MMM d, y, h:mm a'}}
-            </div>
-            <div class="column-30">
-                {{item.mimeType}}
+    <div *ngSwitchCase="false">
+        <div style="padding: 16px;">
+            <button mdc-button (click)="reloadItems()">
+                <mdc-icon>refresh</mdc-icon>
+                Refresh
+            </button>
+        </div>
+        <div class="items-container">
+            <div *ngFor="let item of mediaItems; let i = index" class="item-row">
+                <div class="column-10">
+                    {{i + 1}}
+                </div>
+                <div class="column-30">
+                    {{item.filename}}
+                </div>
+                <div class="column-30">
+                    {{item.mediaMetadata?.creationTime | date: 'MMM d, y, h:mm a'}}
+                </div>
+                <div class="column-30">
+                    {{item.mimeType}}
+                </div>
             </div>
         </div>
     </div>

@@ -2,18 +2,26 @@
     <div *ngSwitchCase="true">
         Loading...
     </div>
-    <div *ngSwitchCase="false" class="items-container">
-        <div *ngFor="let album of albums; let i = index" class="item-row">
-            <div class="column-50">
-                {{album.title}}
-            </div>
-            <div class="column-25">
-                {{album.mediaItemsCount}}
-            </div>
-            <div class="column-25">
-                <a (click)="viewAlbum(album)">
-                    View
-                </a>
+    <div *ngSwitchCase="false">
+        <div style="padding: 16px;">
+            <button mdc-button (click)="reloadAlbums()">
+                <mdc-icon>refresh</mdc-icon>
+                Refresh
+            </button>
+        </div>
+        <div class="items-container">
+            <div *ngFor="let album of albums; let i = index" class="item-row">
+                <div class="column-50">
+                    {{album.title}}
+                </div>
+                <div class="column-25">
+                    {{album.mediaItemsCount}}
+                </div>
+                <div class="column-25">
+                    <a (click)="viewAlbum(album)">
+                        View
+                    </a>
+                </div>
             </div>
         </div>
     </div>

@@ -11,6 +11,7 @@ import { GoogleCredentialsInterceptor } from './services/google-credentials/goog
 import { GoogleCredentialsService } from './services/google-credentials/google-credentials.service';
 import { GooglePhotosAlbumsService } from './services/google-photos/google-photos-albums.service';
 import { GooglePhotosMediaItemsService } from './services/google-photos/google-photos-media-items.service';
+import { MdcWebModule } from './modules/mdc-web.module';
 
 @NgModule({
     declarations: [
@@ -22,7 +23,8 @@ import { GooglePhotosMediaItemsService } from './services/google-photos/google-p
     imports: [
         BrowserModule,
         HttpClientModule,
-        AppRoutingModule
+        AppRoutingModule,
+        MdcWebModule
     ],
     providers: [
         {
